@@ -1,4 +1,4 @@
-modules/**/.terraform/*
-modules/**/.terraform.lock.hcl
-modules/**/terraform.tfstate
-modules/**/terraform.tfstate.backup
+terraform/modules/**/.terraform/*
+terraform/modules/**/.terraform.lock.hcl
+terraform/modules/**/terraform.tfstate
+terraform/modules/**/terraform.tfstate.backup
