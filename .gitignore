@@ -1,5 +1,2 @@
-terraform/modules/**/.terraform/*
-terraform/modules/**/.terraform.lock.hcl
-terraform/modules/**/terraform.tfstate
-terraform/modules/**/terraform.tfstate.backup
-terraform/modules/**/backend.tf
+terraform/.terraform/*
+terraform/.terraform.lock.hcl
