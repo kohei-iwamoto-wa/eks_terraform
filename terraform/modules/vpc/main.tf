@@ -18,13 +18,4 @@ module "vpc" {
   enable_nat_gateway = var.enabele_nat_gateway
   single_nat_gateway = var.single_nat_gateway
   one_nat_gateway_per_az = var.one_nat_gateway_per_az
-
-  # ALB Controllerがサブネットを自動検出するためのタグ
-  public_subnet_tags = {
-    "kubernetes.io/role/elb" = "1"
-  }
-
-  # private_subnet_tags = {
-  #   "kubernetes.io/role/internal-elb" = "1"
-  # }
 }
