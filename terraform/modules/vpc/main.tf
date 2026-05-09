@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "ap-northeast-1"
-}
-
 # VPCモジュールの利用 (EKS向けの標準的な設定)
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
