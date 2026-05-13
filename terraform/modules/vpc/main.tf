@@ -11,7 +11,8 @@ module "vpc" {
   private_subnets = var.private_subnets
 
   # NAT Gatewayの設定 (Worker Nodeがインターネットに出るために必要)
-  enable_nat_gateway = var.enabele_nat_gateway
+  enable_nat_gateway = var.enable_nat_gateway
   single_nat_gateway = var.single_nat_gateway
   one_nat_gateway_per_az = var.one_nat_gateway_per_az
+  map_public_ip_on_launch = true
 }

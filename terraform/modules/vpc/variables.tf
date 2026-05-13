@@ -28,7 +28,7 @@ variable "private_subnets" {
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
-variable "enabele_nat_gateway" {
+variable "enable_nat_gateway" {
     description = "Whether to create NAT Gateway"
     type        = bool
     default     = true

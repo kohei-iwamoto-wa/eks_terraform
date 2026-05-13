@@ -22,7 +22,7 @@ resource "aws_eks_cluster" "eks_cluster" {
 
   # クラスター用ポリシーがアタッチされるまで作成を待機
   depends_on = [
-    aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy
   ]
 }
 
@@ -51,7 +51,7 @@ resource "aws_eks_node_group" "nodes" {
   depends_on = [
     aws_iam_role_policy_attachment.node_AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.node_AmazonEKS_CNI_Policy,
-    aws_iam_role_policy_attachment.node_AmazonEC2ContainerRegistryPullOnly,
+    aws_iam_role_policy_attachment.node_AmazonEC2ContainerRegistryReadOnly,
   ]
 }
 
@@ -97,7 +97,7 @@ resource "aws_iam_role_policy_attachment" "node_AmazonEKS_CNI_Policy" {
   role       = aws_iam_role.node.name
 }
 
-resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryPullOnly" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
+resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.node.name
 }
