@@ -7,3 +7,8 @@ variable "cluster_name" {
   type    = string
   default = "eks-cluster-example"
 }
+
+variable "vpc_id" {
+  description = "EKSクラスターに使用するVPC ID"
+  type    = string
+}

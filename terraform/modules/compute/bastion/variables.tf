@@ -17,3 +17,13 @@ variable "enable_connect_endpoint" {
   type    = bool
   default = false
 }
+
+variable "vpc_id" {
+  description = "Bastionホストに使用するVPC ID"
+  type    = string
+}
+
+variable "vpc_cidr_block" {
+  description = "Bastionホストに使用するVPCのCIDRブロック"
+  type    = string
+}

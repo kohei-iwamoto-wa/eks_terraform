@@ -1,103 +1,77 @@
-# --- EKS Cluster (Control Plane) ---
-resource "aws_eks_cluster" "eks_cluster" {
-  name     = var.cluster_name
-  role_arn = aws_iam_role.cluster.arn
-  version  = "1.34"
+data "aws_caller_identity" "current" {}
 
-  # Managed Node Group を使うため Auto Mode は OFF (ブロックごと削除または無効化)
-  # bootstrap_self_managed_addons = false はそのままでOK
-  # マネージドアドオンの設定を作る必要があります。
-  # アクセスエントリを使用するように認証モードを変更する
-  bootstrap_self_managed_addons = false
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
 
-  access_config {
-    authentication_mode = "API"
+  cluster_name    = var.cluster_name
+  cluster_version = "1.34"
+
+  # ネットワーク設定
+  vpc_id     = var.vpc_id
+  subnet_ids = var.cluster_subnet_ids
+
+  # クラスターエンドポイントのアクセス設定
+  cluster_endpoint_private_access = true
+  cluster_endpoint_public_access  = true
+
+  authentication_mode = "API"
+
+  enable_cluster_creator_admin_permissions = true
+
+  cluster_addons = {
+    coredns                = {}
+    kube-proxy             = {}
+    vpc-cni                = {}
+    # aws-ebs-csi-driver = {
+    #   most_recent              = true
+    #   attach_ind_component_policy = true 
+    # }
   }
 
-  vpc_config {
-    endpoint_private_access = true
-    endpoint_public_access  = true
-    subnet_ids              = var.cluster_subnet_ids
+  eks_managed_node_groups = {
+    main = {
+      name         = "${var.cluster_name}-node-group"
+      instance_types = ["t3.medium"]
+      capacity_type  = "ON_DEMAND"
+
+      min_size     = 1
+      max_size     = 3
+      desired_size = 2
+
+      max_unavailable = 1
+    }
   }
-
-  # クラスター用ポリシーがアタッチされるまで作成を待機
-  depends_on = [
-    aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy
-  ]
 }
 
-# --- Managed Node Group ---
-resource "aws_eks_node_group" "nodes" {
-  cluster_name    = aws_eks_cluster.eks_cluster.name
-  node_group_name = "${var.cluster_name}-node-group"
-  node_role_arn   = aws_iam_role.node.arn
-  subnet_ids      = var.cluster_subnet_ids
+resource "aws_eks_access_entry" "console_user" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/terraform"
+  type          = "STANDARD"
+}
 
-  # インスタンス設定
-  instance_types = ["t3.medium"]
-  capacity_type  = "ON_DEMAND"
+resource "aws_eks_access_policy_association" "console_user_admin" {
+  cluster_name  = module.eks.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = aws_eks_access_entry.console_user.principal_arn
 
-  scaling_config {
-    desired_size = 2
-    max_size     = 3
-    min_size     = 1
+  access_scope {
+    type = "cluster"
   }
+}
 
-  update_config {
-    max_unavailable = 1
+resource "aws_eks_access_entry" "root_user" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "root_user_admin" {
+  cluster_name  = module.eks.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = aws_eks_access_entry.root_user.principal_arn
+
+  access_scope {
+    type = "cluster"
   }
-
-  # ノード用ポリシーがアタッチされるまで作成を待機
-  depends_on = [
-    aws_iam_role_policy_attachment.node_AmazonEKSWorkerNodePolicy,
-    aws_iam_role_policy_attachment.node_AmazonEKS_CNI_Policy,
-    aws_iam_role_policy_attachment.node_AmazonEC2ContainerRegistryReadOnly,
-  ]
-}
-
-# --- IAM Role for Cluster (Control Plane) ---
-resource "aws_iam_role" "cluster" {
-  name = "${var.cluster_name}-cluster-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = { Service = "eks.amazonaws.com" }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.cluster.name
-}
-
-# --- IAM Role for Nodes (Worker Nodes) ---
-resource "aws_iam_role" "node" {
-  name = "${var.cluster_name}-node-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = { Service = "ec2.amazonaws.com" }
-    }]
-  })
-}
-
-# Managed Node Group に必須の 3 つのポリシー
-resource "aws_iam_role_policy_attachment" "node_AmazonEKSWorkerNodePolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.node.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_AmazonEKS_CNI_Policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.node.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_AmazonEC2ContainerRegistryReadOnly" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.node.name
 }
