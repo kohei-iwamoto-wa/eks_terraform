@@ -12,3 +12,13 @@ variable "vpc_id" {
   description = "EKSクラスターに使用するVPC ID"
   type    = string
 }
+
+variable "bastion_iam_role_arn" {
+  description = "踏み台インスタンス用のIAMロールのARN"
+  type        = string
+  
+}
+
+variable "security_group_ids" {
+  type = list(string)
+}
