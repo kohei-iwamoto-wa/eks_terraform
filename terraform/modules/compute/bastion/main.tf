@@ -41,6 +41,18 @@ module "ec2_bastion" {
   }
   
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
+
+  user_data = <<-EOF
+    sudo tee /etc/yum.repos.d/kubernetes.repo <<EOF
+    [kubernetes]
+    name=Kubernetes
+    baseurl=https://pkgs.k8s.io/core:/stable:/v1.32/rpm/
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://pkgs.k8s.io/core:/stable:/v1.32/rpm/repodata/repomd.xml.key
+    sudo dnf clean all
+    sudo dnf install -y kubectl
+  EOF
 }
 
 resource "aws_security_group" "vpc_endpoints" {

@@ -79,9 +79,10 @@ resource "aws_eks_access_policy_association" "root_user_admin" {
 }
 
 resource "aws_eks_access_entry" "bastion" {
-  cluster_name  = "cluster"
+  cluster_name  = module.eks.cluster_name
   principal_arn = var.bastion_iam_role_arn
   type          = "STANDARD"
+  depends_on = [module.eks]
 }
 
 resource "aws_eks_access_policy_association" "bastion_admin" {
