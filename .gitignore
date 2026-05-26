@@ -2,3 +2,5 @@ terraform/dev/.terraform/*
 terraform/prod/.terraform/*
 terraform/dev/.terraform.lock.hcl
 terraform/prod/.terraform.lock.hcl
+terraform/dev/backend.tf
+terraform/prod/backend.tf
