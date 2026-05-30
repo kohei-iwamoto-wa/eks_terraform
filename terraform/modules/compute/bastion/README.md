@@ -20,3 +20,4 @@ kubectl version --client --output=yaml
 ## kubeconfig 作成
 
 aws eks update-kubeconfig --region ap-northeast-1 --name cluster
+
