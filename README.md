@@ -2,6 +2,8 @@
 
 Terraform を使用して AWS 上に Amazon EKS（Elastic Kubernetes Service）クラスターを構築し、Kustomize を用いてアプリケーション（Nginx）を環境別に管理・デプロイするためのリポジトリです。
 
+学習環境のプロビジョニングの自動化目的で作成しました。
+
 ## ディレクトリ構造
 
 本プロジェクトは、インフラ定義を行う `terraform` ディレクトリと、Kubernetes マニフェストを管理する `kustomize` ディレクトリに分かれています。
