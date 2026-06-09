@@ -16,9 +16,8 @@ resource "aws_rds_cluster" "this" {
   backup_retention_period = var.backup_retention_period
   preferred_backup_window = var.preferred_backup_window
   vpc_security_group_ids  = var.vpc_security_group_ids
-
   db_subnet_group_name = length(var.db_subnet_ids) > 0 ? aws_db_subnet_group.this[0].name : null
-
+  skip_final_snapshot     = true
   tags = var.tags
  
 }
