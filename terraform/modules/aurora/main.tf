@@ -21,9 +21,6 @@ resource "aws_rds_cluster" "this" {
 
   tags = var.tags
  
-  lifecycle {
-    prevent_destroy = var.prevent_destroy
-  }
 }
 
 resource "aws_rds_cluster_instance" "this" {

@@ -23,3 +23,11 @@ module "ec2_bastion" {
   vpc_id = module.vpc.vpc_id
   vpc_cidr_block = module.vpc.vpc_cidr
 }
+
+module "aurora" {
+  source = "../modules/aurora"
+  db_subnet_ids = module.vpc.private_subnets
+  vpc_security_group_ids = [module.ec2_bastion.security_group_id,
+    module.eks.cluster_security_group_id]
+  master_password = "your_secure_password"
+}
