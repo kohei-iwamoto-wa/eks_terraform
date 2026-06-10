@@ -56,6 +56,7 @@ module "ec2_bastion" {
 
   dnf clean all
   dnf install -y kubectl
+  dnf install -y postgresql17
   EOF
 }
 

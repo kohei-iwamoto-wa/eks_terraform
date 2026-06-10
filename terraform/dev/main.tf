@@ -27,7 +27,7 @@ module "ec2_bastion" {
 module "aurora" {
   source = "../modules/aurora"
   db_subnet_ids = module.vpc.private_subnets
-  vpc_security_group_ids = [module.ec2_bastion.security_group_id,
-    module.eks.cluster_security_group_id]
+  # セキュリティグループの設定は後で行うため、空のリストを渡す
+  vpc_security_group_ids = []
   master_password = "your_secure_password"
 }
